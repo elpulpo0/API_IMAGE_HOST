@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/id_rsa
           chmod 600 /tmp/id_rsa
-          scp -o StrictHostKeyChecking=no -i /tmp/id_rsa ./docker-compose.yml octo@${{ secrets.VPS_IP }}:/home/octo/qrcode_api/
+          scp -o StrictHostKeyChecking=no -i /tmp/id_rsa -P ${{ secrets.PORT }} ./docker-compose.yml octo@${{ secrets.VPS_IP }}:/home/octo/qrcode_api/
 
       - name: Deploy on VPS
         run: |
