@@ -21,4 +21,10 @@ __init__.py
 
 # Données générées
 /uploads/*
+node_modules
+package.json
 
+package-lock.json
+app copy.py
+test.js
+test2.js
