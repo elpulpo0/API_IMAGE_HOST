@@ -50,11 +50,11 @@ jobs:
       - name: Deploy on VPS
         run: |
           # Pull the latest Docker image from Docker Hub
-          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa -p ${{ secrets.PORT }} octo@${{ secrets.VPS_IP }} "cd /home/octo/qrcode_api && docker-compose pull"
+          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa -p ${{ secrets.PORT }} octo@${{ secrets.VPS_IP }} "cd /home/octo/qrcode_api && sudo docker-compose pull"
           
           # Stop existing services
-          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa -p ${{ secrets.PORT }} octo@${{ secrets.VPS_IP }} "cd /home/octo/qrcode_api && docker-compose down --remove-orphans"
+          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa -p ${{ secrets.PORT }} octo@${{ secrets.VPS_IP }} "cd /home/octo/qrcode_api && sudo docker-compose down --remove-orphans"
           
           # Start the updated services using the new image
-          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa -p ${{ secrets.PORT }} octo@${{ secrets.VPS_IP }} "cd /home/octo/qrcode_api && docker-compose up --build -d"
+          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa -p ${{ secrets.PORT }} octo@${{ secrets.VPS_IP }} "cd /home/octo/qrcode_api && sudo docker-compose up --build -d"
 
