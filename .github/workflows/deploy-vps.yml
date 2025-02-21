@@ -45,16 +45,16 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/id_rsa
           chmod 600 /tmp/id_rsa
-          scp -o StrictHostKeyChecking=no -i /tmp/id_rsa ./docker-compose.yml debian@${{ secrets.VPS_IP }}:/home/debian/qrcode_api/
+          scp -o StrictHostKeyChecking=no -i /tmp/id_rsa ./docker-compose.yml octo@${{ secrets.VPS_IP }}:/home/octo/qrcode_api/
 
       - name: Deploy on VPS
         run: |
           # Pull the latest Docker image from Docker Hub
-          ssh -o StrictHostKeyChecking=no debian@${{ secrets.VPS_IP }} "cd /home/debian/qrcode_api && docker-compose pull"
+          ssh -o StrictHostKeyChecking=no octo@${{ secrets.VPS_IP }} "cd /home/octo/qrcode_api && docker-compose pull"
           
           # Stop existing services
-          ssh -o StrictHostKeyChecking=no debian@${{ secrets.VPS_IP }} "cd /home/debian/qrcode_api && sudo docker-compose down --remove-orphans"
+          ssh -o StrictHostKeyChecking=no octo@${{ secrets.VPS_IP }} "cd /home/octo/qrcode_api && sudo docker-compose down --remove-orphans"
           
           # Start the updated services using the new image
-          ssh -o StrictHostKeyChecking=no debian@${{ secrets.VPS_IP }} "cd /home/debian/qrcode_api && sudo docker-compose up --build -d"
+          ssh -o StrictHostKeyChecking=no octo@${{ secrets.VPS_IP }} "cd /home/octo/qrcode_api && sudo docker-compose up --build -d"
 
