@@ -1,0 +1,27 @@
+services:
+  qrcode_api:
+    image: "${DOCKER_IMAGE}"
+    container_name: qrcode_api
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qrcode_api.rule=Host(`qrcode-api.elpulpo.xyz`)"
+      - "traefik.http.routers.qrcode_api.entrypoints=websecure"
+      - "traefik.http.routers.qrcode_api.tls=true"
+      - "traefik.http.routers.qrcode_api.tls.certresolver=letencrypt"
+      - "traefik.http.services.qrcode_api.loadbalancer.server.port=8001"
+    expose:
+      - "8001"
+    volumes:
+      - qrcode_api_data:/data
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  qrcode_api_data:

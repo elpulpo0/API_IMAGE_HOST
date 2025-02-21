@@ -1,0 +1,60 @@
+name: Docker Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check-out du code du dépôt
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Login to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/qrcode_api:latest .
+
+      # Push Docker image to Docker Hub
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/qrcode_api:latest
+
+      # Set up SSH key for remote access
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Copie le docker-compose.yml sur le VPS
+      - name: Copy docker-compose.yml to VPS
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/id_rsa
+          chmod 600 /tmp/id_rsa
+          scp -o StrictHostKeyChecking=no -i /tmp/id_rsa ./docker-compose.yml debian@${{ secrets.VPS_IP }}:/home/debian/qrcode_api/
+
+      - name: Deploy on VPS
+        run: |
+          # Pull the latest Docker image from Docker Hub
+          ssh -o StrictHostKeyChecking=no debian@${{ secrets.VPS_IP }} "cd /home/debian/qrcode_api && docker-compose pull"
+          
+          # Stop existing services
+          ssh -o StrictHostKeyChecking=no debian@${{ secrets.VPS_IP }} "cd /home/debian/qrcode_api && sudo docker-compose down --remove-orphans"
+          
+          # Start the updated services using the new image
+          ssh -o StrictHostKeyChecking=no debian@${{ secrets.VPS_IP }} "cd /home/debian/qrcode_api && sudo docker-compose up --build -d"
+
