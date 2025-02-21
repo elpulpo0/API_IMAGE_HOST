@@ -1,4 +1,4 @@
-# Environnement virtuel
+# Virtual Environment
 .venv/
 
 # Python
@@ -11,7 +11,7 @@ __init__.py
 # Pytest
 .pytest_cache
 
-# Système
+# System
 .DS_Store
 **/.DS_Store
 
@@ -19,12 +19,5 @@ __init__.py
 .vscode/
 .idea/
 
-# Données générées
+# Generated Data
 /uploads/*
-node_modules
-package.json
-
-package-lock.json
-app copy.py
-test.js
-test2.js
