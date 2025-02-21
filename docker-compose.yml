@@ -2,6 +2,8 @@ services:
   qrcode_api:
     image: "${DOCKER_IMAGE}"
     container_name: qrcode_api
+    env_file:
+      - .env
     restart: always
     networks:
       - proxy
