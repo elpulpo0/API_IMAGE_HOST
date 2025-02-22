@@ -12,7 +12,7 @@ app = FastAPI(
     description="An API to generate QR codes and preview them with Open Graph metadata.",
     contact={
         "name": "El Pulpo",
-        "url": "https://qrcode-api.elpulpo.xyz.elpulpo.xyz",
+        "url": "https://qrcode-api.elpulpo.xyz",
     },
     license_info={
         "name": "MIT",
@@ -29,13 +29,13 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 app.mount("/images", StaticFiles(directory="images"), name="images")
 
 
-@app.get("/")
+@app.get("/", tags=["QR Code Generator"])
 def home():
     return {"message": "QR Code API is running!"}
 
 
 # Endpoint to generate the QR code
-@app.post("/generate_qr/")
+@app.post("/generate_qr/", tags=["QR Code Generator"])
 async def generate_qr(data: str):
     """
     Generate a QR code and return a preview link with metadata.
@@ -82,7 +82,7 @@ async def generate_qr(data: str):
 
 
 # Endpoint to serve the HTML preview page with metadata
-@app.get("/qr/{filename}", response_class=HTMLResponse)
+@app.get("/qr/{filename}", response_class=HTMLResponse, tags=["QR Code Generator"])
 async def preview_qr(request: Request, filename: str):
     """
     Generate an HTML page with Open Graph metadata for preview.

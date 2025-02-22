@@ -15,7 +15,7 @@ The API allows users to generate a QR code image from any given string, and the 
 
 ### `POST /generate_qr/`
 
-This endpoint accepts a string of data, generates a QR code for it, and returns a URL where the generated QR code image can be accessed.
+This endpoint accepts a string of data, generates a QR code for it, and returns a preview link to an HTML page with Open Graph metadata.
 
 #### Request Body
 
@@ -31,29 +31,29 @@ This endpoint accepts a string of data, generates a QR code for it, and returns 
 
 ```json
 {
-  "url": "/qr/qrcode.png"
+  "preview_url": "/qr/qrcode_20250222123015.png"
 }
 ```
 
-- **url**: A relative URL pointing to the generated QR code image. The image will be accessible at this URL after the QR code is generated.
+- **preview_url**: A relative URL pointing to the generated QR code image preview page, including Open Graph metadata for social media sharing.
 
 ### Example Request
 
 To generate a QR code, send a POST request to `/generate_qr/` with a string to encode. Here's an example using `curl`:
 
 ```bash
-curl -X 'POST'   'http://localhost:3001/generate_qr/'   -H 'Content-Type: application/json'   -d '{"data": "example_data_to_encode"}'
+curl -X 'POST' 'http://localhost:8000/generate_qr/' -H 'Content-Type: application/json' -d '{"data": "example_data_to_encode"}'
 ```
 
 ### Example Response
 
 ```json
 {
-  "url": "/qr/qrcode.png"
+  "preview_url": "/qr/qrcode_20250222123015.png"
 }
 ```
 
-The QR code image will be saved in the `qr` folder and can be accessed via the URL `http://localhost:3001/qr/qrcode.png`.
+The QR code image will be saved in the `images` folder, and a preview page with metadata will be accessible at `http://localhost:8000/qr/qrcode_20250222123015.png`.
 
 ## Installation and Setup
 
@@ -65,6 +65,7 @@ To run this API locally, you need to have the following installed:
 - FastAPI
 - Uvicorn
 - qrcode
+- Pillow
 
 You can install the required dependencies with `pip`:
 
@@ -86,19 +87,19 @@ This will start the API on `http://localhost:8000` by default.
 
 ```
 .
-├── qr/              # The directory where QR code images are saved
-├── app.py               # FastAPI app with the QR code generation endpoint
-└── requirements.txt      # Python dependencies
+├── images/           # The directory where QR code images are saved
+├── app.py            # FastAPI app with the QR code generation endpoint
+└── requirements.txt  # Python dependencies
 ```
 
 ### Accessing Generated QR Codes
 
-After generating a QR code, the image will be stored in the `qr` directory. You can access the generated QR code via the URL returned in the response.
+After generating a QR code, the image will be stored in the `images` directory. You can access the generated QR code via the URL returned in the response.
 
-For example, if your server is running on `localhost:3001`, the QR code image will be available at:
+For example, if your server is running on `localhost:8000`, the QR code image preview page will be available at:
 
 ```
-http://localhost:3001/qr/qrcode.png
+http://localhost:8000/qr/qrcode_20250222123015.png
 ```
 
 ## Usage with MultiversX Plugin
