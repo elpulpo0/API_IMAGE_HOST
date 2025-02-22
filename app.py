@@ -46,7 +46,7 @@ async def generate_qr(data: str):
     img.save(file_path)
 
     # Return a preview link
-    return {"preview_url": f"/images/{filename}"}
+    return {"preview_url": f"/qr/{filename}"}
 
 
 # Endpoint to serve the HTML preview page with metadata
@@ -74,8 +74,8 @@ async def preview_qr(request: Request, filename: str):
         <meta property="og:description" content="Scan Me">
         <meta property="og:image" content="{image_url}">
         <meta property="og:image:type" content="image/png">
-        <meta property="og:image:width" content="500">
-        <meta property="og:image:height" content="500">
+        <meta property="og:image:width" content="200">
+        <meta property="og:image:height" content="200">
 
         <!-- Twitter Meta Tags -->
         <meta name="twitter:card" content="summary_large_image">
