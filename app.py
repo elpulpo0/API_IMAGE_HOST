@@ -4,6 +4,7 @@ import qrcode
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from datetime import datetime
+from fastapi import Request
 
 # Create FastAPI app instance
 app = FastAPI()
@@ -14,6 +15,11 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 # Mount the static file directory to serve the QR code images
 app.mount("/images", StaticFiles(directory="images"), name="images")
+
+
+@app.get("/")
+def home():
+    return {"message": "QR Code API is running!"}
 
 # Endpoint to generate the QR code
 @app.post("/generate_qr/")
@@ -40,15 +46,17 @@ async def generate_qr(data: str):
     img.save(file_path)
 
     # Return a preview link
-    return {"preview_url": f"/qr/{filename}"}
+    return {"preview_url": f"/images/{filename}"}
+
 
 # Endpoint to serve the HTML preview page with metadata
 @app.get("/qr/{filename}", response_class=HTMLResponse)
-async def preview_qr(filename: str):
+async def preview_qr(request: Request, filename: str):
     """
     Generate an HTML page with Open Graph metadata for preview.
     """
-    image_url = f"/qr/{filename}"
+    base_url = str(request.base_url).rstrip("/")
+    image_url = f"{base_url}/images/{filename}"
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -60,7 +68,7 @@ async def preview_qr(filename: str):
         <meta name="description" content="">
 
         <!-- Facebook Meta Tags -->
-        <meta property="og:url" content="{image_url}">
+        <meta property="og:url" content="{base_url}/preview/{filename}">
         <meta property="og:type" content="website">
         <meta property="og:title"  content="Scan Me">
         <meta property="og:description" content="Scan Me">
@@ -71,8 +79,8 @@ async def preview_qr(filename: str):
 
         <!-- Twitter Meta Tags -->
         <meta name="twitter:card" content="summary_large_image">
-        <meta property="twitter:domain" content="{image_url}">
-        <meta property="twitter:url" content="{image_url}">
+        <meta property="twitter:domain" content="elpulpo.xyz">
+        <meta property="twitter:url" content="{base_url}/preview/{filename}">
         <meta name="twitter:title" content="Scan Me">
         <meta name="twitter:description" content="Scan Me">
         <meta name="twitter:image" content="{image_url}">
