@@ -7,7 +7,19 @@ from datetime import datetime
 from PIL import Image
 
 # Create FastAPI app instance
-app = FastAPI()
+app = FastAPI(
+    title="QR Code Generator API",
+    description="An API to generate QR codes and preview them with Open Graph metadata.",
+    contact={
+        "name": "El Pulpo",
+        "url": "https://qrcode-api.elpulpo.xyz.elpulpo.xyz",
+    },
+    license_info={
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT",
+    },
+)
+
 
 # Define the upload directory where QR codes will be saved
 UPLOAD_DIR = Path("images")
@@ -57,7 +69,7 @@ async def generate_qr(data: str):
     y_offset = (final_height - qr_size) // 2
 
     # Redimensionner le QR Code à 500x500
-    img_qr = img_qr.resize((qr_size, qr_size), Image.ANTIALIAS)
+    img_qr = img_qr.resize((qr_size, qr_size), Image.LANCZOS)
 
     # Coller le QR Code au centre de l’image
     background.paste(img_qr, (x_offset, y_offset), img_qr)

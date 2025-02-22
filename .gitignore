@@ -20,5 +20,4 @@ __init__.py
 .idea/
 
 # Generated Data
-/qr/*
-app_old.py
+/images/*
