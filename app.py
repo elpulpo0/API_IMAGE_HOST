@@ -3,16 +3,17 @@ from pathlib import Path
 import qrcode
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
+from datetime import datetime
 
 # Create FastAPI app instance
 app = FastAPI()
 
 # Define the upload directory where QR codes will be saved
-UPLOAD_DIR = Path("qr")
+UPLOAD_DIR = Path("images")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 # Mount the static file directory to serve the QR code images
-app.mount("/qr", StaticFiles(directory="qr"), name="qr")
+app.mount("/images", StaticFiles(directory="images"), name="images")
 
 # Endpoint to generate the QR code
 @app.post("/generate_qr/")
@@ -21,8 +22,9 @@ async def generate_qr(data: str):
     Generate a QR code and return a preview link with metadata.
     """
 
-    # Generate a unique filename based on the data
-    filename = "qrcode.png"
+    # Générer un nom de fichier unique basé sur un timestamp
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    filename = f"qrcode_{timestamp}.png"
     file_path = UPLOAD_DIR / filename
 
     # Create and save the QR code
@@ -38,10 +40,10 @@ async def generate_qr(data: str):
     img.save(file_path)
 
     # Return a preview link
-    return {"preview_url": f"/preview/{filename}"}
+    return {"preview_url": f"/qr/{filename}"}
 
 # Endpoint to serve the HTML preview page with metadata
-@app.get("/preview/{filename}", response_class=HTMLResponse)
+@app.get("/qr/{filename}", response_class=HTMLResponse)
 async def preview_qr(filename: str):
     """
     Generate an HTML page with Open Graph metadata for preview.
@@ -53,17 +55,27 @@ async def preview_qr(filename: str):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>QR Code Preview</title>
+        <!-- HTML Meta Tags -->
+        <title>Scan Me</title>
+        <meta name="description" content="">
 
-        <!-- Open Graph metadata -->
-        <meta property="og:title" content="QR Code Preview">
-        <meta property="og:description" content="Scan me">
+        <!-- Facebook Meta Tags -->
+        <meta property="og:url" content="{image_url}">
+        <meta property="og:type" content="website">
+        <meta property="og:title"  content="Scan Me">
+        <meta property="og:description" content="Scan Me">
         <meta property="og:image" content="{image_url}">
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="500">
         <meta property="og:image:height" content="500">
-        <meta property="og:type" content="website">
-        <meta property="og:url" content="{image_url}">
+
+        <!-- Twitter Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta property="twitter:domain" content="{image_url}">
+        <meta property="twitter:url" content="{image_url}">
+        <meta name="twitter:title" content="Scan Me">
+        <meta name="twitter:description" content="Scan Me">
+        <meta name="twitter:image" content="{image_url}">
     </head>
     <body>
         <img src="{image_url}" alt="QR Code">
@@ -71,4 +83,3 @@ async def preview_qr(filename: str):
     </html>
     """
     return HTMLResponse(content=html_content)
-
