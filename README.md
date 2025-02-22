@@ -31,7 +31,7 @@ This endpoint accepts a string of data, generates a QR code for it, and returns 
 
 ```json
 {
-  "url": "/uploads/qrcode.png"
+  "url": "/qr/qrcode.png"
 }
 ```
 
@@ -49,11 +49,11 @@ curl -X 'POST'   'http://localhost:3001/generate_qr/'   -H 'Content-Type: applic
 
 ```json
 {
-  "url": "/uploads/qrcode.png"
+  "url": "/qr/qrcode.png"
 }
 ```
 
-The QR code image will be saved in the `uploads` folder and can be accessed via the URL `http://localhost:3001/uploads/qrcode.png`.
+The QR code image will be saved in the `qr` folder and can be accessed via the URL `http://localhost:3001/qr/qrcode.png`.
 
 ## Installation and Setup
 
@@ -86,19 +86,19 @@ This will start the API on `http://localhost:8000` by default.
 
 ```
 .
-├── uploads/              # The directory where QR code images are saved
+├── qr/              # The directory where QR code images are saved
 ├── app.py               # FastAPI app with the QR code generation endpoint
 └── requirements.txt      # Python dependencies
 ```
 
 ### Accessing Generated QR Codes
 
-After generating a QR code, the image will be stored in the `uploads` directory. You can access the generated QR code via the URL returned in the response.
+After generating a QR code, the image will be stored in the `qr` directory. You can access the generated QR code via the URL returned in the response.
 
 For example, if your server is running on `localhost:3001`, the QR code image will be available at:
 
 ```
-http://localhost:3001/uploads/qrcode.png
+http://localhost:3001/qr/qrcode.png
 ```
 
 ## Usage with MultiversX Plugin

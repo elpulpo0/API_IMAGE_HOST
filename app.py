@@ -7,11 +7,11 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI()
 
 # Define the upload directory where QR codes will be saved
-UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR = Path("qr")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 # Mount the static file directory to serve the QR code images
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/qr", StaticFiles(directory="qr"), name="qr")
 
 
 # Endpoint to generate the QR code
@@ -49,4 +49,4 @@ async def generate_qr(data: str):
     img.save(file_path)
 
     # Return the URL of the generated QR code
-    return {"url": f"/uploads/qrcode.png"}
+    return {"url": f"/qr/qrcode.png"}

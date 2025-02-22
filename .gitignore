@@ -20,4 +20,4 @@ __init__.py
 .idea/
 
 # Generated Data
-/uploads/*
+/qr/*
