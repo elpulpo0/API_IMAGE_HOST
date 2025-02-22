@@ -1,10 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pathlib import Path
 import qrcode
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from datetime import datetime
-from fastapi import Request
+from PIL import Image
 
 # Create FastAPI app instance
 app = FastAPI()
@@ -21,19 +21,19 @@ app.mount("/images", StaticFiles(directory="images"), name="images")
 def home():
     return {"message": "QR Code API is running!"}
 
+
 # Endpoint to generate the QR code
 @app.post("/generate_qr/")
 async def generate_qr(data: str):
     """
     Generate a QR code and return a preview link with metadata.
     """
-
     # Générer un nom de fichier unique basé sur un timestamp
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     filename = f"qrcode_{timestamp}.png"
     file_path = UPLOAD_DIR / filename
 
-    # Create and save the QR code
+    # Créer et enregistrer le QR Code
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -42,8 +42,28 @@ async def generate_qr(data: str):
     )
     qr.add_data(data)
     qr.make(fit=True)
-    img = qr.make_image(fill="black", back_color="white")
-    img.save(file_path)
+    img_qr = qr.make_image(fill="black", back_color="white").convert("RGBA")
+
+    # Définir la taille finale de l'image (1200x630)
+    final_width = 1200
+    final_height = 630
+    qr_size = 500
+
+    # Créer une nouvelle image blanche (ou autre couleur de fond)
+    background = Image.new("RGBA", (final_width, final_height), "white")
+
+    # Calculer les coordonnées pour centrer le QR Code
+    x_offset = (final_width - qr_size) // 2
+    y_offset = (final_height - qr_size) // 2
+
+    # Redimensionner le QR Code à 500x500
+    img_qr = img_qr.resize((qr_size, qr_size), Image.ANTIALIAS)
+
+    # Coller le QR Code au centre de l’image
+    background.paste(img_qr, (x_offset, y_offset), img_qr)
+
+    # Sauvegarder l’image finale
+    background.save(file_path)
 
     # Return a preview link
     return {"preview_url": f"/qr/{filename}"}
@@ -74,8 +94,8 @@ async def preview_qr(request: Request, filename: str):
         <meta property="og:description" content="Scan Me">
         <meta property="og:image" content="{image_url}">
         <meta property="og:image:type" content="image/png">
-        <meta property="og:image:width" content="200">
-        <meta property="og:image:height" content="200">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
 
         <!-- Twitter Meta Tags -->
         <meta name="twitter:card" content="summary_large_image">
