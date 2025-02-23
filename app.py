@@ -1,10 +1,16 @@
 from fastapi import FastAPI, Request
 from pathlib import Path
 import qrcode
+import logging
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from datetime import datetime
 from PIL import Image
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # Create FastAPI app instance
 app = FastAPI(
@@ -19,7 +25,6 @@ app = FastAPI(
         "url": "https://opensource.org/licenses/MIT",
     },
 )
-
 
 # Define the upload directory where QR codes will be saved
 UPLOAD_DIR = Path("images")
@@ -40,6 +45,8 @@ async def generate_qr(data: str):
     """
     Generate a QR code and return a preview link with metadata.
     """
+    logging.info(f"Data received for QR generation: {data}")
+
     # Générer un nom de fichier unique basé sur un timestamp
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     filename = f"qrcode_{timestamp}.png"
@@ -77,8 +84,27 @@ async def generate_qr(data: str):
     # Sauvegarder l’image finale
     background.save(file_path)
 
-    # Return a preview link
+    # Compter le nombre d'images dans le dossier
+    num_images = len(list(UPLOAD_DIR.glob("*.png")))
+    logging.info(
+        f"QR Code generated and saved as {filename}. Total images in folder: {num_images}"
+    )
+
     return {"preview_url": f"/qr/{filename}"}
+
+
+# Endpoint to delete all QR codes
+@app.delete("/delete_qrs/", tags=["QR Code Generator"])
+def delete_qrs():
+    """
+    Delete all QR code images from the folder.
+    """
+    num_deleted = 0
+    for file in UPLOAD_DIR.glob("*.png"):
+        file.unlink()
+        num_deleted += 1
+    logging.info(f"Deleted {num_deleted} QR codes from the folder.")
+    return {"message": f"Deleted {num_deleted} QR codes."}
 
 
 # Endpoint to serve the HTML preview page with metadata
@@ -95,11 +121,8 @@ async def preview_qr(request: Request, filename: str):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- HTML Meta Tags -->
         <title>Scan Me</title>
         <meta name="description" content="">
-
-        <!-- Facebook Meta Tags -->
         <meta property="og:url" content="{base_url}/preview/{filename}">
         <meta property="og:type" content="website">
         <meta property="og:title"  content="Scan Me">
@@ -108,8 +131,6 @@ async def preview_qr(request: Request, filename: str):
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
-
-        <!-- Twitter Meta Tags -->
         <meta name="twitter:card" content="summary_large_image">
         <meta property="twitter:domain" content="elpulpo.xyz">
         <meta property="twitter:url" content="{base_url}/preview/{filename}">
